@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Strava credentials, tokens, secrets & caches
+credentials.json
+*.token
+*.key
+*.secret
+.env
+.env.*
+*.credentials
+tokens.json
+.strava_cache*
+cache/
+
+# Generated reports & exports (contains user activity data)
+*.html
+*.csv
+
+# Testing & tool caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
