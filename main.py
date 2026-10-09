@@ -5,9 +5,66 @@ Interactive Terminal UI to calculate combined kilometers of trainings matching a
 with flashy HTML & JavaScript report generation.
 """
 import argparse
+import os
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
+
+
+def ensure_dependencies():
+    """Verify that dependencies are met; auto-bootstrap .venv if running with clean python3."""
+    try:
+        import textual
+        import rich
+        import requests
+        import aiohttp
+        import jinja2
+        return
+    except ImportError:
+        pass
+
+    script_dir = Path(__file__).parent.resolve()
+    venv_dir = script_dir / ".venv"
+    venv_python = venv_dir / "bin" / "python3"
+    req_file = script_dir / "requirements.txt"
+
+    # Check if we are already inside an active venv but missing packages
+    is_in_venv = sys.prefix != getattr(sys, "base_prefix", sys.prefix)
+    if is_in_venv:
+        print("📦 Installing required dependencies into current environment...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(req_file)])
+        return
+
+    # Check if .venv already exists
+    if venv_python.exists():
+        try:
+            subprocess.check_call(
+                [str(venv_python), "-c", "import textual, rich, requests, aiohttp, jinja2"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError:
+            print("📦 Installing required dependencies into .venv...")
+            subprocess.check_call([str(venv_python), "-m", "pip", "install", "-r", str(req_file)])
+        os.execv(str(venv_python), [str(venv_python)] + sys.argv)
+
+    # .venv does not exist: create it and install requirements
+    print("📦 First run detected: Setting up virtual environment (.venv) and installing requirements...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "venv", str(venv_dir)])
+        subprocess.check_call([str(venv_python), "-m", "pip", "install", "-r", str(req_file)])
+        print("✅ Environment ready. Launching application...\n")
+        os.execv(str(venv_python), [str(venv_python)] + sys.argv)
+    except Exception as e:
+        print(f"⚠️  Could not auto-create virtual environment: {e}", file=sys.stderr)
+        print("Try running via launcher: ./run.sh", file=sys.stderr)
+        print("Or install manually: pip3 install -r requirements.txt", file=sys.stderr)
+        sys.exit(1)
+
+
+# Ensure all required packages are present before importing application modules
+ensure_dependencies()
 
 # Add project root to sys.path
 sys.path.insert(0, str(Path(__file__).parent.resolve()))

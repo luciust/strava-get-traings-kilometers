@@ -35,12 +35,13 @@ A modern, responsive Terminal User Interface (TUI) application for Linux designe
 
 ### 1. Launch the Application
 
+On any new Linux machine, simply clone the repo and run:
+
 ```bash
-# Using the launcher script:
+# Using the launcher script (automatically creates .venv and installs dependencies on first run):
 ./run.sh
 
-# Or directly with python:
-source .venv/bin/activate
+# Or directly with python3 (also auto-bootstraps environment if needed):
 python3 main.py
 ```
 
