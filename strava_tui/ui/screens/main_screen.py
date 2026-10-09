@@ -120,12 +120,16 @@ class MainScreen(Screen):
                     ("All Sports", "all"),
                     ("Run", "Run"),
                     ("Ride", "Ride"),
+                    ("MountainBikeRide", "MountainBikeRide"),
+                    ("Walk", "Walk"),
                     ("VirtualRide", "VirtualRide"),
                     ("Swim", "Swim"),
                     ("Hike", "Hike"),
                     ("Workout", "Workout"),
                 ],
                 value="all",
+                allow_blank=True,
+                prompt="All Sports",
                 id="sport-select",
             )
             yield Button("🔍 Filter", variant="primary", id="btn-apply-filter", classes="action-btn")
@@ -230,6 +234,14 @@ class MainScreen(Screen):
                 self.all_activities_in_year = activities
 
                 def on_done():
+                    distinct_sports = sorted(list({a.sport_type for a in self.all_activities_in_year if a.sport_type}))
+                    if distinct_sports:
+                        sport_select = self.query_one("#sport-select", Select)
+                        current_val = sport_select.value if isinstance(sport_select.value, str) else "all"
+                        options = [("All Sports", "all")] + [(s, s) for s in distinct_sports]
+                        new_val = current_val if current_val in distinct_sports else "all"
+                        sport_select.set_options(options)
+                        sport_select.value = new_val
                     self.apply_filter()
                     status_bar.update(
                         f"Loaded {len(self.all_activities_in_year)} activities for {year}."
@@ -247,7 +259,12 @@ class MainScreen(Screen):
     def apply_filter(self):
         phrase = self.query_one("#search-phrase", Input).value
         year_str = self.query_one("#year-input", Input).value.strip()
-        sport = self.query_one("#sport-select", Select).value
+        sport_val = self.query_one("#sport-select", Select).value
+
+        # Handle Select.BLANK, Select.NULL, non-strings, or 'all' safely
+        sport = None
+        if isinstance(sport_val, str) and sport_val.strip() and sport_val.strip().lower() != "all":
+            sport = sport_val.strip()
 
         try:
             year = int(year_str)
@@ -259,7 +276,7 @@ class MainScreen(Screen):
             activities=self.all_activities_in_year,
             year=year,
             phrase=phrase,
-            sport_type=sport if sport != "all" else None,
+            sport_type=sport,
         )
 
         # Update StatCards

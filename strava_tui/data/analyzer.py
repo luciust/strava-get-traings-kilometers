@@ -39,9 +39,11 @@ class ActivityAnalyzer:
         matched_activities: List[Activity] = []
         for activity in activities_in_year:
             # Check sport type if specified
-            if sport_type and sport_type.lower() != "all":
-                if activity.sport_type.lower() != sport_type.lower():
-                    continue
+            if sport_type and isinstance(sport_type, str):
+                clean_sport = sport_type.strip().lower()
+                if clean_sport and clean_sport != "all":
+                    if (activity.sport_type or "").lower() != clean_sport:
+                        continue
 
             # Check phrase match
             if clean_phrase:

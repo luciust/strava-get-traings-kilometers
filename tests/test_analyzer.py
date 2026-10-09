@@ -81,6 +81,17 @@ def test_sport_filter():
     assert stats_ride.matching_count == 1
     assert stats_ride.total_distance_km == 40.0
 
+    # Test with Select.NULL or non-string
+    from textual.widgets import Select
+    stats_null = ActivityAnalyzer.filter_and_aggregate(
+        activities=activities,
+        year=2025,
+        phrase="Interval",
+        sport_type=Select.NULL,
+    )
+    assert stats_null.matching_count == 2
+    assert stats_null.total_distance_km == 50.0
+
 
 def test_monthly_breakdown():
     activities = [

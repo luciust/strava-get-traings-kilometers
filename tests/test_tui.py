@@ -30,6 +30,17 @@ async def test_tui_app_lifecycle():
         assert main_screen.current_stats.matching_count > 0
         assert main_screen.current_stats.total_distance_km > 0
 
+        # Test changing sport-select to Select.NULL via clear() and to a specific sport
+        from textual.widgets import Select
+        select_widget = main_screen.query_one("#sport-select", Select)
+        select_widget.clear()
+        await pilot.pause(0.2)
+        assert main_screen.current_stats is not None
+
+        select_widget.value = "Run"
+        await pilot.pause(0.2)
+        assert main_screen.current_stats is not None
+
         # Test opening AuthScreen
         await pilot.click("#btn-switch-account")
         await pilot.pause(0.2)
